@@ -1,0 +1,158 @@
+-- Dead Rails Script
+-- A script for Dead Rails that teleports all bonds to the player's position.
+
+-- Services
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local UserInputService = game:GetService("UserInputService")
+
+-- Variables
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+-- Function to collect bonds
+local function collectBonds()
+    -- Find all objects in the workspace that might be bonds
+    local potentialBonds = Workspace:GetDescendants()
+
+    -- Filter the results to only include objects with the name "Bond"
+    local bonds = {}
+    for _, object in pairs(potentialBonds) do
+        if object.Name == "Bond" then
+            table.insert(bonds, object)
+        end
+    end
+
+    -- Teleport the bonds in front of the player
+    for _, bond in pairs(bonds) do
+        bond.CFrame = humanoidRootPart.CFrame + Vector3.new(0, 0, -5)
+    end
+end
+
+-- Event listener to collect bonds when the player presses a key
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.E then
+        collectBonds()
+    end
+end)
+
+-- GUI
+local GUI = Instance.new("ScreenGui")
+GUI.Name = "DeadRailsGUI"
+GUI.Parent = player.PlayerGui
+
+local Button = Instance.new("TextButton")
+Button.Name = "TPAllBonds"
+Button.Text = "TP All Bonds"
+Button.Size = UDim2.new(0, 100, 0, 50)
+Button.Position = UDim2.new(0, 10, 0, 10)
+Button.Parent = GUI
+
+Button.MouseButton1Click:Connect(function()
+    collectBonds()
+end)
+
+-- Auto Drive
+local autoDrive = false
+local function driveTrain()
+    while autoDrive do
+        if Workspace:FindFirstChild("Train") then
+            local train = Workspace.Train
+            local bondsInTrain = 0
+            for _, object in pairs(train:GetDescendants()) do
+                if object.Name == "Bond" then
+                    bondsInTrain = bondsInTrain + 1
+                end
+            end
+            if bondsInTrain > 0 then
+                UserInputService.InputBegan:Connect(function(input)
+                    if input.KeyCode == Enum.KeyCode.W then
+                        UserInputService.InputBegan:Fire(Enum.KeyCode.W)
+                    end
+                end)
+            else
+                UserInputService.InputBegan:Disconnect()
+            end
+        end
+        wait(0.1)
+    end
+end
+
+-- Toggle Button
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Name = "AutoDrive"
+ToggleButton.Text = "Auto Drive: Off"
+ToggleButton.Size = UDim2.new(0, 100, 0, 50)
+ToggleButton.Position = UDim2.new(0, 120, 0, 10)
+ToggleButton.Parent = GUI
+
+ToggleButton.MouseButton1Click:Connect(function()
+    if autoDrive then
+        autoDrive = false
+        ToggleButton.Text = "Auto Drive: Off"
+    else
+        autoDrive = true
+        ToggleButton.Text = "Auto Drive: On"
+        driveTrain()
+    end
+end)
+
+-- Teleport all bonds in 1 second
+local function teleportAllBonds()
+    for i = 1, 10 do
+        collectBonds()
+        wait(0.1)
+    end
+end
+
+-- Button to teleport all bonds
+local TeleportButton = Instance.new("TextButton")
+TeleportButton.Name = "TeleportAllBonds"
+TeleportButton.Text = "Teleport All Bonds"
+TeleportButton.Size = UDim2.new(0, 150, 0, 50)
+TeleportButton.Position = UDim2.new(0, 10, 0, 60)
+TeleportButton.Parent = GUI
+
+TeleportButton.MouseButton1Click:Connect(function()
+    teleportAllBonds()
+end)
+
+-- Advanced teleportation
+local function advancedTeleport()
+    -- Find all objects in the workspace that might be bonds
+    local potentialBonds = Workspace:GetDescendants()
+
+    -- Filter the results to only include objects with the name "Bond"
+    local bonds = {}
+    for _, object in pairs(potentialBonds) do
+        if object.Name == "Bond" then
+            table.insert(bonds, object)
+        end
+    end
+
+    -- Teleport the bonds in front of the player
+    for _, bond in pairs(bonds) do
+        bond.CFrame = humanoidRootPart.CFrame + Vector3.new(0, 0, -5)
+    end
+
+    -- Repeat the teleportation process 10 times
+    for i = 1, 10 do
+        wait(0.1)
+        for _, bond in pairs(bonds) do
+            bond.CFrame = humanoidRootPart.CFrame + Vector3.new(0, 0, -5)
+        end
+    end
+end
+
+-- Button to advanced teleport
+local AdvancedTeleportButton = Instance.new("TextButton")
+AdvancedTeleportButton.Name = "AdvancedTeleport"
+AdvancedTeleportButton.Text = "Advanced Teleport"
+AdvancedTeleportButton.Size = UDim2.new(0, 150, 0, 50)
+AdvancedTeleportButton.Position = UDim2.new(0, 10, 0, 110)
+AdvancedTeleportButton.Parent = GUI
+
+AdvancedTeleportButton.MouseButton1Click:Connect(function()
+    advancedTeleport()
+end)
